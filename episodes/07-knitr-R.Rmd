@@ -1,5 +1,5 @@
 ---
-title: Dynamic Reports with knitr
+title: 使用knitr生成动态报告
 teaching: 20
 exercises: 5
 source: Rmd
@@ -14,75 +14,75 @@ library(svglite)
 
 ::::::::::::::::::::::::::::::::::::::: objectives
 
-- Understand the value of `knitr` for generating dynamic documents that include text, code, and results.
-- Control basic formatting using markdown syntax.
-- Be able to create, edit, and compile an .Rmd document including code chunks and inline code.
+- 理解`knitr`在生成包含文字、代码和运行结果的动态文档时的价值。
+- 掌握使用markdown语法控制基础排版。
+- 能够创建、编辑并编译一个包含代码块和行内代码的.Rmd文档。
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :::::::::::::::::::::::::::::::::::::::: questions
 
-- How can I put my text, code, and results all in one document?
-- How do I use `knitr`?
-- How do I write in Markdown?
+- 怎样把文字、代码和运行结果整合到同一份文档里？
+- 怎样使用`knitr`？
+- 怎样用Markdown写作？
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::
 
-`knitr` is an R package that allows you to organize your notes, code, and results in a single document.
-It's a great tool for "literate programming" -- the idea that your code should be readable by humans as well as computers!
-It also keeps your writing and results together, so if you collect some new data or change how you clean the data, you just have to re-compile the document and you're up to date!
+`knitr`是一个R包，可以帮你把笔记、代码和运行结果整理在同一份文档里。
+它是实践"文学化编程"（literate programming）的绝佳工具。也就是说，代码不仅要让计算机能读懂，也要让人能读懂
+它还能让你的文字与结果同步存在：如果你新采集了一批数据，或者修改了数据清洗的方式，只需要重新编译一下文档就可以保持最新。
 
-You write `knitr` documents in a simple plain text-like format called markdown, which allows you to format text using intuitive notation, so that you can focus on the content you're writing and generating a well-formatted document when needed.
-In fact, you can turn your plain text (and R code and results) into an HTML file or, if you have an installation of LaTeX and [Pandoc][pandoc] on your machine, a PDF, or even a Word document (if you must!).
+`knitr`文档使用一种类似纯文本的简单格式来书写，叫做markdown。它通过直观的标记来排版文本，让你可以专注于写作内容本身，并在需要时一键生成排版好的文档。
+你还可以把这些纯文本（以及R代码和运行结果）转换成HTML文件；如果你的电脑上装了LaTeX和[Pandoc][pandoc]，还能生成PDF，甚至生成Word文档（如果你非要这么做的话）。
 
-To get started, install the `knitr` package.
+开始之前，先安装`knitr`包：
 
 ```{r, eval=FALSE}
 install.packages("knitr")
 ```
 
-To create a new `knitr` document in RStudio, click on File -> New File, and then select "R Markdown..." from the dropdown list.
-Accept the default options in the dialog box that follows (but note the other document formats to choose from, including presentations).
-Save the file and click on the dropdown arrow next to the "Knit" button at the top of the script window.
-This will bring up another dropdown menu, this time with a number of options for controlling `knitr` output.
-Select the "Knit to HTML" option to create an HTML document based on the markdown file.
-Compare the output to the source.
+要在RStudio中新建一个`knitr`文档，可以点击File -> New File，然后从下拉列表中选择"R Markdown..."。
+在随后弹出的对话框中保留默认选项即可（不过要注意还有其他可选的文档格式，包括演示文稿）。
+保存文件后，点击脚本窗口顶部"Knit"按钮旁边的下拉箭头。
+这会打开另一个下拉菜单，里面提供了若干用于控制`knitr`输出的选项。
+选择"Knit to HTML"，就可以根据这个markdown文件生成一份HTML文档。
+最后将生成的输出与源文件对照看看。
 
 :::::::::::::::::::::::::::::::::::::::  challenge
 
-## Formatting Text in Markdown
+## 用Markdown来排版
 
-Visit <https://rmarkdown.rstudio.com/authoring_basics.html> and briefly check out some of the formatting options.
+打开<https://rmarkdown.rstudio.com/authoring_basics.html>，简要浏览一下其中介绍的几种排版方式。
 
 In the example document add
 
-- Headers using `#`
-- Emphasis using asterisk: \*italics\* and \*\*bold\*\*
-- Lists using `*` and numbered lists using `1.`, `2.`, etc.
-- **Bonus:** Create a table
+- 用`#`书写各级标题
+- 用星号实现强调：\*斜体\* 和 \*\*粗体\*\*
+- 用`*`书写无序列表，用`1.`、`2.`等书写有序列表
+- **加分项：** 自己制作一个表格
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::
 
-Markdown also supports LaTeX equation editing.
-We can display pretty equations by enclosing them in `$`, e.g., `$\alpha = \dfrac{1}{(1 - \beta)^2}$` renders as:
+Markdown还支持LaTeX公式的编辑。
+只要把公式用`$`包起来，就可以排出漂亮的数学公式，例如`$\alpha = \dfrac{1}{(1 - \beta)^2}$`会被渲染为：
 $\alpha = \dfrac{1}{(1 - \beta)^2}$
 
-The top of the source (`.Rmd`) file has some header material in YAML format (enclosed by triple dashes).
-Some of this gets displayed in the output header, other of it provides formatting information to the conversion engine.
+源文件（`.Rmd`）的开头会有一段YAML格式的头部内容（由三个短横线包围）。
+其中一部分会显示在输出文档的页眉中，另一部分则用来给转换引擎提供格式信息。
 
-To distinguish R code from text, RMarkdown uses three back-ticks followed by `{r}` to distinguish a "code chunk".
-In RStudio, the keyboard shortcut to create a code chunk is <kbd>Command</kbd>\+<kbd>Option</kbd>\+<kbd>I</kbd> or <kbd>Ctrl</kbd>\+<kbd>Alt</kbd>\+<kbd>I</kbd>.
+为了把R代码和正文文本区分开，RMarkdown使用三个反引号加上`{r}`来标识一个"代码块"（code chunk）。
+在RStudio中，新建代码块的快捷键是<kbd>Command</kbd>\+<kbd>Option</kbd>\+<kbd>I</kbd>，或者<kbd>Ctrl</kbd>\+<kbd>Alt</kbd>\+<kbd>I</kbd>。
 
-A code chunk will set off the code and its results in the output document, but you can also print the results of code within a text block by enclosing code like so: `r '\x60r code-here\x60'`.
+代码块会在输出文档中把代码和它的运行结果单独显示出来；不过你也可以在正文中嵌入行内代码，把代码运行结果直接呈现在文字中，写法是：`r '\x60r code-here\x60'`。
 
 :::::::::::::::::::::::::::::::::::::::  challenge
 
-## Use knitr to Produce a Report
+## 用knitr生成一份报告
 
-1. Open a new .Rmd script and save it as inflammation\_report.Rmd
-2. Copy code from earlier into code chunks to read the inflammation data and plot average inflammation.
-3. Add a few notes describing what the code does and what the main findings are. Include an in-line calculation of the median inflammation level.
-4. `knit` the document and view the html result.
+1. 新建一个.Rmd脚本，并将其保存为inflammation\_report.Rmd。
+2. 把前面用过的代码复制到代码块中，用来读取inflammation数据并绘制平均inflammation值的图表。
+3. 添加几段说明，描述这段代码的作用以及主要的分析结论。在正文中再加入一个计算inflammation中位数的行内代码。
+4. `knit`这份文档，并查看生成的html结果。
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -90,8 +90,8 @@ A code chunk will set off the code and its results in the output document, but y
 
 :::::::::::::::::::::::::::::::::::::::: keypoints
 
-- Use knitr to generate reports that combine text, code, and results.
-- Use Markdown to format text.
-- Put code in blocks delimited by triple back quotes followed by `{r}`.
+- 使用knitr生成把文字、代码和运行结果结合在一起的报告。
+- 使用Markdown给文本排版。
+- 将代码放在由三个反引号加`{r}`包围的代码块中。
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::

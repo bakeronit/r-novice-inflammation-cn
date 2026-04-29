@@ -1,5 +1,5 @@
 ---
-title: Best Practices for Writing R Code
+title: R语言编程最佳实践
 teaching: 10
 exercises: 5
 source: Rmd
@@ -14,37 +14,37 @@ library(svglite)
 
 ::::::::::::::::::::::::::::::::::::::: objectives
 
-- Describe changes made to code for future reference.
-- Understand the importance about requirements and dependencies for your code.
-- Know when to use setwd().
-- To identify and segregate distinct components in your code using # or #-.
-- Additional best practice recommendations.
+- 描述对代码所做的更改以便日后参考。
+- 理解明确说明代码的需求和依赖项的重要性。
+- 知道何时使用setwd()。
+- 学习使用#或#-来识别和分隔代码中不同的组成部分。
+- 了解其他最佳实践建议。
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :::::::::::::::::::::::::::::::::::::::: questions
 
-- How can I write R code that other people can understand and use?
+- 如何编写其他人能够理解并使用的R代码？
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::
 
-### Keep track of who wrote your code and its intended purpose
+### 记录代码的作者和其意图
 
-Starting your code with an annotated description of what the code does when it is run will help you when you have to look at or change it in the future.
-Just one or two lines at the beginning of the file can save you or someone else a lot of time and effort when trying to understand what a particular script does.
+在代码开头添加注释描述说明该代码运行时所做的事情，这将有助于你在将来查看或修改代码时理解它的功能。
+仅仅在文件开头添加一两行注释，就可以为你自己或他人在尝试理解某个特定脚本的功能时节省大量时间和精力。
 
 ```{r comment1}
-# This is code to replicate the analyses and figures from my 2014 Science
-# paper. Code developed by Sarah Supp, Tracy Teal, and Jon Borelli
+# 这段代码用于复现我2014年发表在Science上的论文中的分析和图表
+# 代码由 Sarah Supp, Tracy Teal, 和 Jon Borelli 开发
 ```
 
-Also consider version-controlling your code as for example taught by [Software Carpentry's `git-novice` lessons][swc-lesson-git].
-Frequent commits with explanatory, synoptic commit messages are an elegant way to comment code. [RStudio enables this with a Git integration][rstudio-git].
+另外，请考虑对你的代码进行版本控制，例如可以参考[Software Carpentry的`git-novice`课程][swc-lesson-git]中所教授的方法。
+带有解释性、概括性提交信息的频繁提交是为代码添加注释的一种优雅方式。[RStudio通过Git集成支持这一功能][rstudio-git]。
 
-### Be explicit about the requirements and dependencies of your code
+### 明确列出代码的需求及其依赖项
 
-Loading all of the packages that will be necessary to run your code (using `library`) is a nice way of indicating which packages are necessary to run your code.
-It can be frustrating to make it two-thirds of the way through a long-running script only to find out that a dependency hasn't been installed.
+可以用`library`来加载运行代码所需的所有包，这样很容易表明哪些包是运行代码所必需的。
+如果一个长时间运行的脚本进行到三分之二时才发现某个依赖项尚未安装，这是非常让人沮丧的。
 
 ```{r loadpkgs, eval=FALSE}
 library(ggplot2)
@@ -52,120 +52,121 @@ library(reshape)
 library(vegan)
 ```
 
-Another way you can be explicit about the requirements of your code and improve its reproducibility is to limit the "hard-coding" of the input and output files for your script.
-If your code will read in data from a file, define a variable early in your code that stores the path to that file.
-For example
+另一种明确代码需求并提升其可复现性的习惯是，尽量减少对脚本中输入和输出文件的"硬编码"。
+如果你的代码需要从文件中读取数据，那就在代码的开头定义一个变量来存储该文件的路径。
+
+举个例子：
 
 ```{r, eval=FALSE}
 input_file <- "data/data.csv"
 output_file <- "data/results.csv"
 
-# read input
+# 读取输入
 input_data <- read.csv(input_file)
-# get number of samples in data
+# 获取数据中样品数量
 sample_number <- nrow(input_data)
-# generate results
+# 生成结果
 results <- some_other_function(input_file, sample_number)
-# write results
+# 写入结果
 write.table(results, output_file)
 ```
 
-is preferable to
+这样好过于：
 
 ```{r, eval=FALSE}
-# check
+# 检查
 input_data <- read.csv("data/data.csv")
-# get number of samples in data
+# 获取数据中的样品数量
 sample_number <- nrow(input_data)
-# generate results
+# 生成结果
 results <- some_other_function("data/data.csv", sample_number)
-# write results
+# 写入结果
 write.table("data/results.csv", output_file)
 ```
 
-It is also worth considering what the working directory is.
-If the working directory must change, it is best to do that at the beginning of the script.
+同时也值得考虑设置好当前工作目录。
+如果必须更改工作目录，也最好在脚本的开头进行更改。
 
 :::::::::::::::::::::::::::::::::::::::::  callout
 
-## Be careful when using `setwd()`
+## 使用`setwd()`时要小心
 
-One should exercise caution when using `setwd()`.
-Changing directories in a script file can limit reproducibility:
+要谨慎使用`setwd()`。
+在脚本中修改工作目录很可能影响代码的复现：
 
-- `setwd()` will return an error if the directory to which you're trying to change doesn't exist or if the user doesn't have the correct permissions to access that directory. This becomes a problem when sharing scripts between users who have organized their directories differently.
-- If/when your script terminates with an error, you might leave the user in a different directory than the one they started in, and if they then call the script again, this will cause further problems. If you must use `setwd()`, it is best to put it at the top of the script to avoid these problems.
-  The following error message indicates that R has failed to set the working directory you specified:
+- 如果你要切换到的目录不存在，或者用户没有正确的权限访问该目录，`setwd()`将返回错误。所以当你分享脚本给目录组织方式不同的用户时，这就会成为一个问题。
+- 当你的脚本提前报错错误而终止时，可能会让用户停留在与他们最初所在不同的目录中，如果他们之后再次调用该脚本，这将导致进一步的问题。如果你必须使用`setwd()`，最好把它放在脚本的顶部以避免这些问题。
+  以下错误信息表明R未能成功设置你指定的工作目录：
 
 ```
 Error in setwd("~/path/to/working/directory") : cannot change working directory
 ```
 
-It is best practice to have the user running the script begin in a consistent directory on their machine and then use relative file paths from that directory to access files (see below).
+最好的做法是让用户从计算机上一个统一的目录开始运行脚本，然后使用相对于该目录的相对路径来访问其他文件（见下文）。
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::
 
-### Identify and segregate distinct components in your code
+### 标识并分隔代码中不同的组成部分
 
-It's easy to annotate and mark your code using `#` or `#-`to set off sections of your code and to make finding specific parts of your code easier.
-For example, it's often helpful when writing code to separate the function definitions.
-If you create only one or a few custom functions in your script, put them toward the top of your code.
-If you have written many functions, put them all in their own .
-R file and then `source()` those files. `source()` will define all of these functions so that your code can make use of them as needed.
+使用`#`或`#-`来注释和标记代码非常方便，可以将代码划分为不同的部分，使人更容易找到代码中的特定部分。
+例如，在编写代码时，将函数定义分离出来通常很有帮助。
+如果你在脚本中只创建一个或几个自定义函数，请将它们放在代码的顶部。
+如果你编写了很多函数，那么请将它们全部放在单独的.R文件中，
+然后使用`source()`来加载这些文件。`source()`将定义所有这些函数，以便你的代码可以根据需要使用它们。
 
 ```{r source_ex, eval=FALSE}
 source("my_genius_fxns.R")
 ```
 
-### Other ideas
+### 其他建议
 
-1. Use a consistent style within your code. For example, name all matrices something ending in `_mat`. Consistency makes code easier to read and problems easier to spot.
+1. 在代码中使用一致的命名风格。例如，将所有矩阵命名为以`_mat`结尾的名称。一致性使代码更易于阅读，问题也更容易被发现。
 
-2. Keep your code in bite-sized chunks. If a single function or loop gets too long, consider looking for ways to break it into smaller pieces.
+2. 将代码拆分为易于理解的小块。如果单个函数或循环变得过长，考虑将其分解为更小的部分。
 
-3. Don't repeat yourself--automate! If you are repeating the same code over and over, use a loop or a function to repeat that code for you. Needless repetition doesn't just waste time--it also increases the likelihood you'll make a costly mistake!
+3. 避免重复代码-用自动化来代替！如果你一遍又一遍地写重复相同的代码，那就应该使用循环或函数来实现复用。不必要的重复不仅浪费时间，还会增加出现严重错误的风险！
 
-4. Keep all of your source files for a [project in the same directory][rstudio-project], then use relative paths as necessary to access them. For example, use
+4. 将一个[项目的所有源文件保存在同一个目录中][rstudio-project]，并在需要使用时用相对路径来访问。例如，可以使用：
 
 ```{r relpath, eval=FALSE}
 dat <- read.csv(file = "files/dataset-2013-01.csv", header = TRUE)
 ```
 
-rather than:
+而不是：
 
 ```{r abspath, eval=FALSE}
 dat <- read.csv(file = "/Users/Karthik/Documents/sannic-project/files/dataset-2013-01.csv", header = TRUE)
 ```
 
-5. R can run into memory issues. It is a common problem to run out of memory after running R scripts for a long time. To inspect the objects in your current R environment, you can list the objects, search current packages, and remove objects that are currently not in use. A good practice when running long lines of computationally intensive code is to remove temporary objects after they have served their purpose. However, sometimes, R will not clean up unused memory for a while after you delete objects. You can force R to tidy up its memory by using `gc()`.
+5. R可能会遇到内存问题。长时间运行R脚本后耗尽内存很常见。要检查当前R环境中的对象，可以列出所有对象、查看已加载的包，并删除当前未使用的对象。对于运行时间较长、计算密集的代码，好的实践是在临时对象完成其用途后及时将其移除。不过，有时即使删除了对象，R也不会立即回收未使用的内存。这种情况可以使用gc()强制R进行内存回收。
 
 ```{r gc_ex, eval=FALSE}
-# Sample dataset of 1000 rows
+# 1000行样品数据
 interim_object <- data.frame(rep(1:100, 10),
                              rep(101:200, 10),
                              rep(201:300, 10))
-object.size(interim_object) # Reports the memory size allocated to the object
-rm("interim_object") # Removes only the object itself and not necessarily the memory allotted to it
-gc() # Force R to release memory it is no longer using
-ls() # Lists all the objects in your current workspace
-rm(list = ls()) # If you want to delete all the objects in the workspace and start with a clean slate
+object.size(interim_object) # 记录分配给该对象的内存大小
+rm("interim_object") # 删除对象本身不一定能释放分配给它的内存
+gc() # 强制R释放不再使用的内存
+ls() # 列出当前工作空间的所有对象
+rm(list = ls()) # 删除工作空间中的所有对象并以一个干净的状态重新开始
 ```
 
-6. [Don't save a session history][dc-rstudio] (the default option in R, when it asks if you want an `RData` file). Instead, start in a clean environment so that older objects don't remain in your environment any longer than they need to. If that happens, it can lead to unexpected results.
+6. [不要保存会话历史][dc-rstudio] (R默认在退出时询问是否保存RData文件). 相反，应从一个干净的环境开始，以避免旧对象在环境中停留超过必要时间，否则可能导致不可预期的结果。
 
-7. Wherever possible, [keep track of `sessionInfo()` somewhere][sessionInfo] in your project folder. Session information is invaluable because it captures all of the packages used in the current project. If a newer version of a package changes the way a function behaves, you can always go back and reinstall the version that worked (Note: At least on CRAN, all older versions of packages are permanently archived).
+7. 尽可能在项目文件夹中 [记录`sessionInfo()`信息 ][sessionInfo]。 会话信息非常重要，因为它记录了当前项目所使用的全部包。如果某个包的新版本改变了函数行为，你可以随时回退并重新安装之前可正常工作的版本（注：在CRAN上，所有旧版本的包都会被永久归档保存）。
 
-8. Collaborate. Grab a buddy and practice "code review". Review is used for preparing experiments and manuscripts; why not use it for code as well? Our code is also a major scientific achievement and the product of lots of hard work! Reviews are built into [GitHub's Pull request feature][gh-pr]
+8. 开展协作. 找一个同伴进行“代码审查”（code review）练习。既然都需要对实验设计和论文撰写进行审查，为什么不也用于代码呢？代码同样是重要的科研成果，是大量努力的结晶！像[GitHub的Pull Request][gh-pr]功能中已经内置了代码审查机制。
 
 :::::::::::::::::::::::::::::::::::::::  challenge
 
-## Best Practice
+## 最佳实践
 
-1. What other suggestions do you have for coding best practices?
-2. What are some specific ways we could restructure the code we worked on today to make it easier for a new user to read? Discuss with your neighbor.
-3. Make two new R scripts called `inflammation.R` and `inflammation_fxns.R`.
-  Copy and paste code into each script so that `inflammation.R` "does stuff" and `inflammation_fxns.R` holds all of your functions.
-  **Hint**: you will need to add `source` to one of the files.
+1. 关于代码最佳实践，你还有哪些其他的建议？
+2. 我们可以通过哪些具体方式重构今天编写的代码，使其更便于新用户阅读？请与旁边的同伴讨论。
+3. 新建两个R脚本，分别命名为`inflammation.R`和`inflammation_fxns.R`。
+  将代码复制并粘贴到对应脚本中，使`inflammation.R`负责执行任务，而`inflammation_fxns.R`用于存放所有函数。
+  **提示**: 你需要在其中一个文件中添加`source`。
 
 :::::::::::::::  solution
 
@@ -190,21 +191,20 @@ cat inflammation_fxns.R
 
 :::::::::::::::::::::::::::::::::::::::: keypoints
 
-- Start each program with a description of what it does.
-- Then load all required packages.
-- Consider what working directory you are in when sourcing a script.
-- Use comments to mark off sections of code.
-- Put function definitions at the top of your file, or in a separate file if there are many.
-- Name and style code consistently.
-- Break code into small, discrete pieces.
-- Factor out common operations rather than repeating them.
-- Keep all of the source files for a project in one directory and use relative paths to access them.
-- Keep track of the memory used by your program.
-- Always start with a clean environment instead of saving the workspace.
-- Keep track of session information in your project folder.
-- Have someone else review your code.
-- Use version control.
+- 在每个程序开头描述其功能。
+- 然后加载所有必需的包。
+- 在source一个脚本时，要考虑你当前所在的工作目录。
+- 使用注释来分隔代码的不同部分。
+- 将函数定义放在文件的顶部，如果函数较多，则放在单独的文件中。
+- 保持命名的一致性和代码风格。
+- 将代码拆解为小的、独立的部分。
+- 将常用操作提取出来，不要重复编写。
+- 将一个项目的所有源文件保存在同一个目录中，并使用相对路径访问它们。
+- 跟踪程序使用的内存。
+- 始终从一个干净的环境开始，而不是保存工作空间。
+- 在项目文件夹中跟踪会话信息。
+- 让其他人审查你的代码。
+- 使用版本控制。
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::
-
 
